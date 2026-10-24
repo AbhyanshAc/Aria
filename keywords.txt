@@ -1,0 +1,38 @@
+#######################################
+# Syntax Coloring Map For ARIA
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+AriaClass	KEYWORD1
+AriaActionHandler	KEYWORD1
+AriaVarType	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+loop	KEYWORD2
+device	KEYWORD2
+registerAction	KEYWORD2
+reg	KEYWORD2
+variable	KEYWORD2
+variableJson	KEYWORD2
+variableRaw64	KEYWORD2
+event	KEYWORD2
+raiseEvent	KEYWORD2
+result	KEYWORD2
+sync	KEYWORD2
+sendRaw64	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+ARIA	LITERAL1
+ARIA_BOOL	LITERAL1
+ARIA_INT	LITERAL1
+ARIA_FLOAT	LITERAL1
+ARIA_STRING	LITERAL1
+ARIA_JSON	LITERAL1
+ARIA_RAW64	LITERAL1

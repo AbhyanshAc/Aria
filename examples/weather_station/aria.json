@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "device": {
+    "id": "weather-station",
+    "name": "Smart Weather Station",
+    "protocolVersion": 2
+  },
+  "actions": [
+    {
+      "id": "toggleHeater",
+      "name": "Toggle Heater",
+      "description": "Turns the internal heater on or off.",
+      "aiHints": "Use this if the temperature is getting too low or if frost is detected.",
+      "category": "Controls",
+      "icon": "thermometer"
+    }
+  ],
+  "variables": [
+    {
+      "id": "temperature",
+      "name": "Temperature",
+      "description": "Current temperature reading.",
+      "type": "float",
+      "units": "°C",
+      "min": -40,
+      "max": 80,
+      "category": "Sensors",
+      "icon": "sun",
+      "aiGuidance": "Monitor this to determine if the heater should be toggled."
+    },
+    {
+      "id": "humidity",
+      "name": "Humidity",
+      "description": "Current humidity reading.",
+      "type": "float",
+      "units": "%",
+      "min": 0,
+      "max": 100,
+      "category": "Sensors",
+      "icon": "cloud-rain"
+    },
+    {
+      "id": "heaterState",
+      "name": "Heater Status",
+      "description": "Whether the internal heater is currently running.",
+      "type": "bool",
+      "category": "State",
+      "icon": "power"
+    }
+  ],
+  "events": [
+    {
+      "id": "frostWarning",
+      "name": "Frost Warning",
+      "description": "Fired when the temperature drops below freezing.",
+      "aiHints": "You should probably turn on the heater if you receive this event.",
+      "category": "Alerts",
+      "icon": "alert-triangle",
+      "dangerLevel": "medium"
+    }
+  ]
+}

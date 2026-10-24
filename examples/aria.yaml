@@ -1,0 +1,18 @@
+device:
+  id: example-device
+  name: Example Device
+  protocolVersion: 1
+actions:
+  - id: run
+    name: Run action
+    description: Runs the example user action
+    params:
+      - id: value
+        type: int
+variables:
+  - id: cruiseSpeed
+    type: int
+    description: Example configurable value
+    default: 100
+    min: 0
+    max: 255
