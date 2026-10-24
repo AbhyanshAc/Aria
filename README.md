@@ -1,8 +1,7 @@
 # Aria Arduino Library
 
 This library is proprietary and distributed only through authorized ARIA
-project channels and the AbhyanshAc/Aria repository. Do not copy, modify, or redistribute it without written
-permission from the project owner.
+project channels and the AbhyanshAc/Aria repository. Do not copy, modify, or redistribute it without written permission from the project owner.
 
 This lightweight, hardware-agnostic library lets Arduino sketches communicate
 with ARIA applications over USB Serial. It does not detect board families; if
