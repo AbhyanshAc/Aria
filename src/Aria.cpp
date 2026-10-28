@@ -8,8 +8,16 @@
 #include "Aria.h"
 
 // Base64 encoding table for raw64 support
+#if defined(__AVR__)
+#include <avr/pgmspace.h>
+static const char B64_TABLE[] PROGMEM =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+#define ARIA_B64_CHAR(index) ((char)pgm_read_byte(&B64_TABLE[index]))
+#else
 static const char B64_TABLE[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+#define ARIA_B64_CHAR(index) B64_TABLE[index]
+#endif
 
 // ── Singleton instance ───────────────────────────────────────────────────────
 AriaClass ARIA;
@@ -20,6 +28,7 @@ AriaClass::AriaClass()
       version_(ARIA_PROTOCOL_VERSION),
       lineLength_(0),
       discardingLine_(false),
+      aiResponseHandler_(nullptr),
       actionsCount_(0),
       varsCount_(0),
       eventsCount_(0),
@@ -288,21 +297,34 @@ void AriaClass::sendRaw64(const char *id, const uint8_t *data, size_t length) {
     uint8_t a2 = ((b1 & 0x0F) << 2) | (b2 >> 6);
     uint8_t a3 = b2 & 0x3F;
 
-    encoded += B64_TABLE[a0];
-    encoded += B64_TABLE[a1];
+    encoded += ARIA_B64_CHAR(a0);
+    encoded += ARIA_B64_CHAR(a1);
 
     if (i - 1 < length) {
-      encoded += B64_TABLE[a2];
+      encoded += ARIA_B64_CHAR(a2);
     } else {
       encoded += '=';
     }
     if (i < length) {
-      encoded += B64_TABLE[a3];
+      encoded += ARIA_B64_CHAR(a3);
     } else {
       encoded += '=';
     }
   }
   sendRaw64Encoded(id, encoded);
+}
+
+bool AriaClass::askAI(const char *question, const char *requestId) {
+  if (!serial_ || !question || !requestId || !question[0]) return false;
+  if (strpbrk(question, "|\r\n") || strpbrk(requestId, "|\r\n")) return false;
+  if (strlen(requestId) >= ARIA_ID_MAXLEN) return false;
+  // Q frames share the regular receive buffer, including all framing bytes.
+  const uint8_t versionDigits = version_ >= 100 ? 3 : (version_ >= 10 ? 2 : 1);
+  if (strlen(question) + strlen(requestId) + versionDigits + 5 > ARIA_LINE_BUFFER_SIZE) return false;
+  printHeader('Q', requestId);
+  serial_->print(question);
+  serial_->print('\n');
+  return true;
 }
 
 void AriaClass::sendRaw64Encoded(const char *id, const String &encoded) {
@@ -466,6 +488,13 @@ void AriaClass::handleLine(const char *line, uint16_t len) {
 
   if (type == 'H') { handleHandshake(); return; }
   if (type == 'D') { handleDiscovery(); return; }
+
+  if (type == 'P') {
+    if (!aiResponseHandler_) { sendError(id, "no_ai_response_handler"); return; }
+    const char *response = strncmp(payload, "s:", 2) == 0 ? payload + 2 : payload;
+    aiResponseHandler_(id, response);
+    return;
+  }
 
   if (type == 'A') {
     AriaActionEntry *action = findAction(id);

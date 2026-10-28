@@ -23,7 +23,7 @@
 #define ARIA_MAX_RAW64_LENGTH 256 // bounded heap use for incoming raw64 frames
 #endif
 #ifndef ARIA_LINE_BUFFER_SIZE
-#define ARIA_LINE_BUFFER_SIZE 320 // fits a 128-character raw64 chunk frame
+#define ARIA_LINE_BUFFER_SIZE 192 // fits a 128-character raw64 chunk plus framing
 #endif
 #ifndef ARIA_RAW64_CHUNK_SIZE
 #define ARIA_RAW64_CHUNK_SIZE 128
@@ -41,10 +41,13 @@
 //  N  = Notification / Event  (device → phone, async push)
 //  D  = Discovery query  (phone → device, device → phone)
 //  B  = Binary / raw64   (bidirectional)
+//  Q  = AI question      (device → phone)
+//  P  = AI reply         (phone → device)
 
 // ── Types ────────────────────────────────────────────────────────────────────
 typedef void (*AriaActionHandler)(const char *arguments);
 typedef void (*AriaNoArgActionHandler)();
+typedef void (*AriaAIResponseHandler)(const char *requestId, const char *response);
 
 // uint8_t backing saves 1–3 B per AriaVarEntry on AVR
 enum AriaVarType : uint8_t {
@@ -119,6 +122,11 @@ public:
   // Binary data (raw64 / base64)
   void sendRaw64(const char *id, const uint8_t *data, size_t length);
 
+  // Ask the companion app's configured AI. Callback strings are temporary and
+  // must be copied if they need to be retained.
+  bool askAI(const char *question, const char *requestId = "ask");
+  void onAIResponse(AriaAIResponseHandler handler) { aiResponseHandler_ = handler; }
+
   // Getters
   uint8_t getProtocolVersion() const { return version_; }
   const char *getDeviceId() const { return deviceId_; }
@@ -132,6 +140,7 @@ private:
   char     lineBuf_[ARIA_LINE_BUFFER_SIZE];
   uint16_t lineLength_;
   bool     discardingLine_;
+  AriaAIResponseHandler aiResponseHandler_;
   char deviceId_[ARIA_ID_MAXLEN];
   char deviceName_[ARIA_NAME_MAXLEN];
   char firmwareVersion_[ARIA_NAME_MAXLEN];
