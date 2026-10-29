@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "device": {
+    "id": "moisture-led-demo",
+    "name": "Moisture and LED Demo",
+    "protocolVersion": 2,
+    "baudRate": 115200
+  },
+  "actions": [
+    {
+      "id": "led_on",
+      "name": "Turn onboard LED on",
+      "description": "Turn on the Arduino board's built-in LED.",
+      "params": [],
+      "returns": { "type": "bool", "description": "True when the LED was turned on." },
+      "danger": "low"
+    },
+    {
+      "id": "led_off",
+      "name": "Turn onboard LED off",
+      "description": "Turn off the Arduino board's built-in LED.",
+      "params": [],
+      "returns": { "type": "bool", "description": "True when the LED was turned off." },
+      "danger": "low"
+    }
+  ],
+  "variables": [
+    {
+      "id": "moisturePct",
+      "name": "Simulated moisture",
+      "aliases": ["moisture", "soil moisture"],
+      "type": "float",
+      "unit": "%",
+      "description": "A simulated moisture value that wanders between 25 and 75 percent; no moisture sensor is connected.",
+      "min": 0,
+      "max": 100,
+      "precision": 1,
+      "instructions": ["Report this as simulated test data, never as a physical measurement."]
+    },
+    {
+      "id": "ledOn",
+      "name": "Onboard LED state",
+      "type": "bool",
+      "description": "Whether the Arduino built-in LED is currently on.",
+      "access": "readOnly"
+    }
+  ],
+  "integrations": {
+    "android": {
+      "macrodroid": {
+        "actions": ["led_webhook_cycle"]
+      }
+    }
+  }
+}
